@@ -46,13 +46,11 @@ export function setup() {
     // Create a buffer and upload the full-screen triangle
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    // prettier-ignore
     const positions: number[] = [
-      -1,
-      -1, // Bottom-left
-      3,
-      -1, // Bottom-right (extends beyond)
-      -1,
-      3, // Top-left
+      -1, -1, // Bottom-left
+      3, -1, // Bottom-right (extends beyond)
+      -1, 3, // Top-left
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
