@@ -7,6 +7,23 @@ import { getGL } from "./utils/getGL";
 export function setup() {
   try {
     const gl = getGL("canvas");
+    const canvas = gl.canvas as HTMLCanvasElement;
+
+    // Increase resolution for high-DPI displays
+    function resizeCanvasToDisplaySize() {
+      const realWidth = canvas.clientWidth * window.devicePixelRatio;
+      const realHeight = canvas.clientHeight * window.devicePixelRatio;
+
+      if (canvas.width !== realWidth || canvas.height !== realHeight) {
+        canvas.width = realWidth;
+        canvas.height = realHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    resizeCanvasToDisplaySize(); // Ensure correct resolution on startup
+    window.addEventListener("resize", resizeCanvasToDisplaySize);
+
     const vShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
     const fShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
     const program = createProgram(gl, vShader, fShader);
@@ -26,7 +43,7 @@ export function setup() {
     );
     const timeUniformLocation = gl.getUniformLocation(program, "iTime");
 
-    // Full-screen triangle
+    // Create a buffer and upload the full-screen triangle
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     const positions: number[] = [
@@ -39,11 +56,9 @@ export function setup() {
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    // Create and bind VAO
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
 
-    // Enable position attribute
     gl.enableVertexAttribArray(positionAttributeLocation);
     gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
@@ -52,7 +67,9 @@ export function setup() {
     const pCount = 3;
 
     function drawScene() {
-      const currentTime = performance.now() / 1000; // Convert to seconds
+      resizeCanvasToDisplaySize(); // Ensure canvas is updated dynamically
+
+      const currentTime = performance.now() / 1000;
 
       // Set uniforms
       gl.uniform2f(
